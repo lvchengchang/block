@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"crypto/sha256"
+	"encoding/binary"
+	"log"
 	"time"
 )
 
@@ -21,7 +24,14 @@ type BlockChain struct {
 }
 
 func UintToByte(num uint64) []byte {
-	return []byte{}
+	var buffer bytes.Buffer
+
+	err := binary.Write(&buffer, binary.BigEndian, num)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return buffer.Bytes()
 }
 
 // create block
@@ -45,12 +55,16 @@ func NewBlock(data string, prevBlockHash []byte) *Block {
 func (block *Block) SetHash() {
 	// 拼装数据进行sha256
 	// 平铺Data数组，拼接起来
-	blockInfo := append(block.PrevHash, block.Data...)
-	blockInfo = append(blockInfo, UintToByte(block.Version)...)
-	blockInfo = append(blockInfo, UintToByte(block.TimeStamp)...)
-	blockInfo = append(blockInfo, UintToByte(block.Nonce)...)
-	blockInfo = append(blockInfo, UintToByte(block.Difficulty)...)
-	blockInfo = append(blockInfo, block.MarkelRoot...)
+	tmp := [][]byte{
+		block.PrevHash,
+		block.Data,
+		UintToByte(block.Version),
+		UintToByte(block.Nonce),
+		UintToByte(block.Difficulty),
+		block.MarkelRoot,
+	}
+
+	blockInfo := bytes.Join(tmp, []byte{})
 
 	hash := sha256.Sum256(blockInfo)
 	block.Hash = hash[:]
