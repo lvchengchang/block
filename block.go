@@ -47,7 +47,13 @@ func NewBlock(data string, prevBlockHash []byte) *Block {
 		Nonce:      0,
 	}
 
-	block.SetHash()
+	//block.SetHash()
+
+	pow := NewProofOfWork(&block)
+	// search random and hash
+	hash, nonce := pow.Run()
+	block.Hash = hash
+	block.Nonce = nonce
 
 	return &block
 }
