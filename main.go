@@ -2,7 +2,6 @@ package main
 
 import "fmt"
 
-// todo 5-28添加区块addBlock
 func main() {
 	bc := NewBlockChain()
 
