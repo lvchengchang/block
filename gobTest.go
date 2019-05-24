@@ -12,7 +12,7 @@ type Person struct {
 	Address string
 }
 
-func main() {
+func main1() {
 	var chang Person
 	chang.Name = "chang"
 	chang.Age = 22

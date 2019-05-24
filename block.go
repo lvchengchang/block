@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+	"encoding/gob"
 	"log"
 	"time"
 )
@@ -72,6 +73,21 @@ func (block *Block) SetHash() {
 	block.Hash = hash[:]
 }
 
-func (b *Block) toByte() []byte {
-	return []byte{}
+func (b *Block) Serialize() []byte {
+	// new encode
+	var buffer bytes.Buffer
+
+	encode := gob.NewEncoder(&buffer)
+	encode.Encode(b)
+
+	return buffer.Bytes()
+}
+
+func Deserialize(data []byte) *Block {
+	var tmp Block
+
+	decode := gob.NewDecoder(bytes.NewBuffer(data))
+	decode.Decode(&tmp)
+
+	return &tmp
 }
