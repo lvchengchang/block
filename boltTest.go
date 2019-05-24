@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func main() {
+func smain() {
 	db, err := bolt.Open("test.db", 0666, nil)
 	if err != nil {
 		log.Fatal(err)

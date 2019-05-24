@@ -19,10 +19,6 @@ type Block struct {
 	Difficulty uint64
 }
 
-type BlockChain struct {
-	blocks []*Block
-}
-
 func UintToByte(num uint64) []byte {
 	var buffer bytes.Buffer
 
@@ -74,4 +70,8 @@ func (block *Block) SetHash() {
 
 	hash := sha256.Sum256(blockInfo)
 	block.Hash = hash[:]
+}
+
+func (b *Block) toByte() []byte {
+	return []byte{}
 }
