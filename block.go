@@ -83,11 +83,11 @@ func (b *Block) Serialize() []byte {
 	return buffer.Bytes()
 }
 
-func Deserialize(data []byte) *Block {
+func Deserialize(data []byte) Block {
 	var tmp Block
 
 	decode := gob.NewDecoder(bytes.NewBuffer(data))
 	decode.Decode(&tmp)
 
-	return &tmp
+	return tmp
 }
