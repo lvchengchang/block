@@ -20,7 +20,6 @@ func NewBlockChain() *BlockChain {
 	var lastHash []byte
 
 	db, err := bolt.Open(blockChainDb, 0600, nil)
-	defer db.Close()
 
 	if err != nil {
 		log.Fatalln(err)
@@ -34,7 +33,7 @@ func NewBlockChain() *BlockChain {
 				log.Fatalln(err)
 			}
 
-			bucket.Put(genesisBlock.Hash, genesisBlock.toByte())
+			bucket.Put(genesisBlock.Hash, genesisBlock.Serialize())
 			bucket.Put([]byte("lastHashKey"), genesisBlock.Hash)
 			lastHash = genesisBlock.Hash
 		} else {
@@ -57,4 +56,21 @@ func (bc *BlockChain) AddBlock(data string) {
 	//
 	//block := NewBlock(data, prevHash)
 	//bc.blocks = append(bc.blocks, block)
+
+	lastHash := bc.tail
+
+	bc.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(blockBucket))
+		if bucket == nil {
+			log.Panicln("bucket not exist")
+		}
+
+		block := NewBlock(data, lastHash)
+		bucket.Put(block.Hash, block.Serialize())
+		bucket.Put([]byte("lastHashKey"), block.Hash)
+
+		bc.tail = block.Hash
+
+		return nil
+	})
 }
