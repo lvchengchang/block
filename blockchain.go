@@ -16,7 +16,6 @@ type BlockChain struct {
 
 // create blockchain
 func NewBlockChain() *BlockChain {
-	genesisBlock := GenesisBlock()
 	var lastHash []byte
 
 	db, err := bolt.Open(blockChainDb, 0600, nil)
@@ -32,6 +31,7 @@ func NewBlockChain() *BlockChain {
 			if err != nil {
 				log.Fatalln(err)
 			}
+			genesisBlock := GenesisBlock()
 
 			bucket.Put(genesisBlock.Hash, genesisBlock.Serialize())
 			bucket.Put([]byte("lastHashKey"), genesisBlock.Hash)

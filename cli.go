@@ -6,7 +6,7 @@ import (
 )
 
 type Cli struct {
-	ec *BlockChain
+	bc *BlockChain
 }
 
 const USAGE = `
@@ -22,11 +22,17 @@ func (cli *Cli) Run() {
 		return
 	}
 
-	switch args[1] {
+	cmd := args[1]
+	switch cmd {
 	case "addBlock":
-		break
+		if len(args) == 4 && args[2] == "--data" {
+			data := args[3]
+			cli.AddBlock(data)
+		} else {
+			fmt.Println("添加区块参数失败,请重试")
+		}
 	case "printChain":
-		break
+		cli.PrintBlockChain()
 	default:
 		fmt.Printf(USAGE)
 	}
