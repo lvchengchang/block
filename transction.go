@@ -27,7 +27,7 @@ type TXInput struct {
 }
 
 type TXOutput struct {
-	value float64 // 金额是多少
+	Value float64 // 金额是多少
 	// 锁定脚本
 	PukkeyHash string // 证明发起交易的权限
 }
@@ -57,4 +57,12 @@ func NewCoinBaseTx(address string, data string) *Transaction {
 	tx.SetHash()
 
 	return &tx
+}
+
+func (tx *Transaction) IsCoinBase() bool {
+	if len(tx.TXInputs) == 1 && len(tx.TXInputs[0].TXid) == 0 && tx.TXInputs[0].index == -1 {
+		return true
+	}
+
+	return false
 }

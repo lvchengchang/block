@@ -112,15 +112,28 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 		for _, tx := range block.Transactions {
 			fmt.Printf("current txid : %x\n", tx.TXId)
 			// 遍历当前花费
+		OUTPUT:
 			for i, output := range tx.TXOutputs {
 				fmt.Printf("current index %d", i)
+				// 查看当前block的数据是否被消费
+				// 如果交易id在切片内，代表与之前交易有关系
+				if spentOutputs[string(tx.TXId)] != nil {
+					for _, j := range spentOutputs[string(tx.TXId)] {
+						if int64(i) == j {
+							continue OUTPUT
+						}
+					}
+				}
 
 				if output.PukkeyHash == address {
 					UTXO = append(UTXO, output)
 				}
 			}
 
-			// 遍历当前获取
+			// 遍历当前获取 --- (挖矿交易不校验输入)
+			if !tx.IsCoinBase() {
+				continue
+			}
 			for _, input := range tx.TXInputs {
 				if input.Sig == address {
 					indexArray := spentOutputs[string(input.TXid)]
