@@ -36,10 +36,9 @@ func (pow *ProofOfWork) Run() ([]byte, uint64) {
 
 	fmt.Println("proofOfWorking")
 	for {
-		// 拼装数据
+		// 拼装数据 只对区块头做hash
 		tmp := [][]byte{
 			block.PrevHash,
-			block.Data,
 			UintToByte(block.Version),
 			UintToByte(nonce),
 			UintToByte(block.Difficulty),

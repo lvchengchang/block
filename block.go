@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/binary"
 	"encoding/gob"
 	"log"
@@ -10,14 +9,16 @@ import (
 )
 
 type Block struct {
-	Version    uint64
-	Hash       []byte
-	PrevHash   []byte
-	Data       []byte
+	Version  uint64
+	Hash     []byte
+	PrevHash []byte
+	//Data       []byte
 	MarkelRoot []byte
 	TimeStamp  uint64
 	Nonce      uint64
 	Difficulty uint64
+
+	Transactions []*Transaction
 }
 
 func UintToByte(num uint64) []byte {
@@ -32,18 +33,19 @@ func UintToByte(num uint64) []byte {
 }
 
 // create block
-func NewBlock(data string, prevBlockHash []byte) *Block {
+func NewBlock(tx []*Transaction, prevBlockHash []byte) *Block {
 	block := Block{
-		Version:    00,
-		PrevHash:   prevBlockHash,
-		Hash:       []byte{},
-		Data:       []byte(data),
-		MarkelRoot: []byte{},
-		TimeStamp:  uint64(time.Now().Unix()),
-		Difficulty: 0, // 无效值
-		Nonce:      0,
+		Version:      00,
+		PrevHash:     prevBlockHash,
+		Hash:         []byte{},
+		Transactions: tx,
+		MarkelRoot:   []byte{},
+		TimeStamp:    uint64(time.Now().Unix()),
+		Difficulty:   0, // 无效值
+		Nonce:        0,
 	}
 
+	block.MakeMekeRoot()
 	//block.SetHash()
 
 	pow := NewProofOfWork(&block)
@@ -55,23 +57,23 @@ func NewBlock(data string, prevBlockHash []byte) *Block {
 	return &block
 }
 
-func (block *Block) SetHash() {
-	// 拼装数据进行sha256
-	// 平铺Data数组，拼接起来
-	tmp := [][]byte{
-		block.PrevHash,
-		block.Data,
-		UintToByte(block.Version),
-		UintToByte(block.Nonce),
-		UintToByte(block.Difficulty),
-		block.MarkelRoot,
-	}
-
-	blockInfo := bytes.Join(tmp, []byte{})
-
-	hash := sha256.Sum256(blockInfo)
-	block.Hash = hash[:]
-}
+//func (block *Block) SetHash() {
+//	// 拼装数据进行sha256
+//	// 平铺Data数组，拼接起来
+//	tmp := [][]byte{
+//		block.PrevHash,
+//		block.Data,
+//		UintToByte(block.Version),
+//		UintToByte(block.Nonce),
+//		UintToByte(block.Difficulty),
+//		block.MarkelRoot,
+//	}
+//
+//	blockInfo := bytes.Join(tmp, []byte{})
+//
+//	hash := sha256.Sum256(blockInfo)
+//	block.Hash = hash[:]
+//}
 
 func (b *Block) Serialize() []byte {
 	// new encode
@@ -90,4 +92,9 @@ func Deserialize(data []byte) Block {
 	decode.Decode(&tmp)
 
 	return tmp
+}
+
+// 模拟梅克尔根
+func (block *Block) MakeMekeRoot() []byte {
+	return []byte{}
 }
