@@ -146,3 +146,60 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 
 	return UTXO
 }
+
+func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]uint64, float64) {
+	utxos := make(map[string][]uint64)
+	spentOutputs := make(map[string][]int64)
+	var calc float64
+
+	it := bc.NewIterator()
+	for {
+		block := it.Next()
+		if block.Hash == nil {
+			// range complete
+			break
+		}
+
+		for _, tx := range block.Transactions {
+			fmt.Printf("current txid : %x\n", tx.TXId)
+			// 遍历当前花费
+		OUTPUT:
+			for i, output := range tx.TXOutputs {
+				fmt.Printf("current index %d", i)
+				// 查看当前block的数据是否被消费
+				// 如果交易id在切片内，代表与之前交易有关系
+				if spentOutputs[string(tx.TXId)] != nil {
+					for _, j := range spentOutputs[string(tx.TXId)] {
+						if int64(i) == j {
+							continue OUTPUT
+						}
+					}
+				}
+
+				if calc < amount && output.PukkeyHash == from {
+					//UTXO = append(UTXO, output)
+					// todo find your need utxo
+					utxos[string(tx.TXId)] = append(utxos[string(tx.TXId)], uint64(i))
+					calc += output.Value
+					if calc >= amount {
+						return utxos, calc
+					}
+				}
+			}
+
+			// 遍历当前获取 --- (挖矿交易不校验输入)
+			if !tx.IsCoinBase() {
+				continue
+			}
+			for _, input := range tx.TXInputs {
+				if input.Sig == from {
+					indexArray := spentOutputs[string(input.TXid)]
+					indexArray = append(indexArray, input.index)
+				}
+			}
+		}
+	}
+	// range output find yourself utxo
+
+	return utxos, calc
+}

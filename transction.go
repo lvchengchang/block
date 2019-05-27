@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"fmt"
 	"log"
 )
 
@@ -65,4 +66,33 @@ func (tx *Transaction) IsCoinBase() bool {
 	}
 
 	return false
+}
+
+func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transaction {
+	utxos, resValue := bc.FindNeedUTXOs(from, amount)
+
+	if resValue < amount {
+		fmt.Println("余额不足")
+		return nil
+	}
+
+	var inputs []TXInput
+	var outputs []TXOutput
+
+	for id, indexArray := range utxos {
+		for _, i := range indexArray {
+			input := TXInput{[]byte(id), int64(i), from}
+			inputs = append(inputs, input)
+		}
+	}
+
+	output := TXOutput{amount, to}
+	outputs = append(outputs, output)
+	// 找零
+	if resValue > amount {
+		outputs = append(outputs, TXOutput{resValue - amount, from})
+	}
+
+	tx := Transaction{[]byte{}, inputs, outputs}
+	return &tx
 }

@@ -3,7 +3,7 @@ package main
 func main() {
 	bc := NewBlockChain("班长")
 	cli := Cli{bc}
-	cli.Run()
+	cli.Send("班长", "李四", 10, "班长", "张三转给李四10")
 
 	//if err := os.RemoveAll("blockChain.db"); err != nil {
 	//	log.Fatalln(err)

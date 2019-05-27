@@ -55,3 +55,14 @@ func (cli *Cli) GetBalance(address string) {
 
 	fmt.Printf("%s 的余额是 %f", address, total)
 }
+
+func (cli *Cli) Send(from, to string, amount float64, miner, data string) {
+	coinbase := NewCoinBaseTx(miner, data)
+	tx := NewTransaction(from, to, amount, cli.bc)
+	if tx == nil {
+		return
+	}
+
+	cli.bc.AddBlock([]*Transaction{coinbase, tx})
+	fmt.Println("转账成功")
+}
