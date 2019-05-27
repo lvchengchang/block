@@ -23,13 +23,13 @@ type TXInput struct {
 	// transaction index
 	index int64
 	// address 解锁脚本
-	Sig string
+	Sig string // 发起证明(我拥有这些币)
 }
 
 type TXOutput struct {
-	value float64
+	value float64 // 金额是多少
 	// 锁定脚本
-	PukkeyHash string
+	PukkeyHash string // 证明发起交易的权限
 }
 
 // set transaction id

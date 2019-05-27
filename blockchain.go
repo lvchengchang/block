@@ -97,6 +97,39 @@ func (cli *Cli) PrintBlockChain() {
 
 func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 	var UTXO []TXOutput
+	// speed data
+	spentOutputs := make(map[string][]int64)
+
+	// range input find yourself speed utxo collection (查看是否已经消费了)
+	it := bc.NewIterator()
+	for {
+		block := it.Next()
+		if block.Hash == nil {
+			// range complete
+			break
+		}
+
+		for _, tx := range block.Transactions {
+			fmt.Printf("current txid : %x\n", tx.TXId)
+			// 遍历当前花费
+			for i, output := range tx.TXOutputs {
+				fmt.Printf("current index %d", i)
+
+				if output.PukkeyHash == address {
+					UTXO = append(UTXO, output)
+				}
+			}
+
+			// 遍历当前获取
+			for _, input := range tx.TXInputs {
+				if input.Sig == address {
+					indexArray := spentOutputs[string(input.TXid)]
+					indexArray = append(indexArray, input.index)
+				}
+			}
+		}
+	}
+	// range output find yourself utxo
 
 	return UTXO
 }
