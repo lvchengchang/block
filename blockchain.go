@@ -117,6 +117,7 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 	return UTXO
 }
 
+// 找到足够的金额，已经相关金额的tx
 func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]uint64, float64) {
 	//找到的合理的utxos集合
 	utxos := make(map[string][]uint64)
@@ -144,6 +145,7 @@ func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]u
 	return utxos, calc
 }
 
+// 返回所有交易，未消费的集合
 func (bc *BlockChain) FindUTXOTransactions(address string) []*Transaction {
 	var txs []*Transaction                   // 存有关信息
 	spentOutputs := make(map[string][]int64) // 去除已消费的数据
