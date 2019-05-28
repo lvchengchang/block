@@ -56,9 +56,9 @@ func (cli *Cli) Run() {
 func (cli *Cli) GetBalance(address string) {
 	// 拿到所有没有被消费的数据
 	utxos := cli.bc.FindUTXOs(address)
-
 	total := 0.0
 	for _, utxo := range utxos {
+		fmt.Println(utxo.Value)
 		total += utxo.Value
 	}
 

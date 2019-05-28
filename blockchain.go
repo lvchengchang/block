@@ -96,7 +96,6 @@ func (cli *Cli) PrintBlockChain() {
 		fmt.Printf("难度值是: %d\n", block.Difficulty)
 		fmt.Printf("当前区块的哈希值是: %x\n", block.Hash)
 		fmt.Printf("区块数据是:%s\n", block.Transactions[0].TXInputs[0].Sig)
-		fmt.Printf("区块涉及到的金额是:%f\n", block.Transactions[0].TXOutputs[0].Value)
 		c++
 		fmt.Println()
 	}
@@ -175,7 +174,7 @@ func (bc *BlockChain) FindUTXOTransactions(address string) []*Transaction {
 				// 因为数据是从后往前遍历，如果已经被使用了。在后面获取的地方进行过滤
 				for _, input := range tx.TXInputs {
 					if input.Sig == address {
-						spentOutputs[string(input.TXid)] = append(spentOutputs[string(input.TXid)], input.index)
+						spentOutputs[string(input.TXid)] = append(spentOutputs[string(input.TXid)], input.Index)
 					}
 				}
 			}

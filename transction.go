@@ -22,7 +22,7 @@ type TXInput struct {
 	// transaction id
 	TXid []byte
 	// transaction index
-	index int64
+	Index int64
 	// address 解锁脚本
 	Sig string // 发起证明(我拥有这些币)
 }
@@ -62,7 +62,7 @@ func NewCoinBaseTx(address string, data string) *Transaction {
 }
 
 func (tx *Transaction) IsCoinBase() bool {
-	if len(tx.TXInputs) == 1 && len(tx.TXInputs[0].TXid) == 0 && tx.TXInputs[0].index == -1 {
+	if len(tx.TXInputs) == 1 && len(tx.TXInputs[0].TXid) == 0 && tx.TXInputs[0].Index == -1 {
 		return true
 	}
 
@@ -99,5 +99,6 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 	// 生成转账记录
 	tx := Transaction{[]byte{}, inputs, outputs}
 	tx.SetHash()
+
 	return &tx
 }
