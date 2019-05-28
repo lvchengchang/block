@@ -73,6 +73,7 @@ func (cli *Cli) GetBalance(address string) {
 }
 
 func (cli *Cli) Send(from, to string, amount float64, miner, data string) {
+	// 生成一个挖矿数据
 	coinbase := NewCoinBaseTx(miner, data)
 	tx := NewTransaction(from, to, amount, cli.bc)
 	if tx == nil {

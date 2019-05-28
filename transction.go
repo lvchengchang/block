@@ -51,8 +51,8 @@ func (tx *Transaction) SetHash() {
 
 // 挖矿只有一个input和output
 func NewCoinBaseTx(address string, data string) *Transaction {
-	input := TXInput{[]byte{}, -1, data}
-	output := TXOutput{reword, address}
+	input := TXInput{[]byte{}, -1, data} // 挖矿没有输入，全部给个默认值
+	output := TXOutput{reword, address}  // 输出是金额和地址
 
 	tx := Transaction{[]byte{}, []TXInput{input}, []TXOutput{output}}
 	tx.SetHash()
@@ -94,5 +94,6 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 	}
 
 	tx := Transaction{[]byte{}, inputs, outputs}
+	tx.SetHash()
 	return &tx
 }
