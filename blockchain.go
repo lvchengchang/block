@@ -32,6 +32,7 @@ func NewBlockChain(address string) *BlockChain {
 			if err != nil {
 				log.Fatalln(err)
 			}
+			// 生成创世快
 			genesisBlock := GenesisBlock(address)
 
 			bucket.Put(genesisBlock.Hash, genesisBlock.Serialize())
@@ -48,6 +49,7 @@ func NewBlockChain(address string) *BlockChain {
 }
 
 func GenesisBlock(address string) *Block {
+	// create coin base
 	coinBase := NewCoinBaseTx(address, "info")
 	return NewBlock([]*Transaction{coinBase}, []byte{})
 }
@@ -79,11 +81,14 @@ func (bc *BlockChain) AddBlock(txs []*Transaction) {
 
 func (cli *Cli) PrintBlockChain() {
 	it := cli.bc.NewIterator()
+
+	c := 0
 	for {
 		block := it.Next()
 		if block.Hash == nil {
 			return
 		}
+		fmt.Printf("区块链高度是: %d\n", c)
 		fmt.Printf("版本号是: %d\n", block.Version)
 		fmt.Printf("前一个区块的哈希值是: %x\n", block.PrevHash)
 		fmt.Printf("梅克尔根的值是: %x\n", block.MarkelRoot)
@@ -91,6 +96,8 @@ func (cli *Cli) PrintBlockChain() {
 		fmt.Printf("难度值是: %d\n", block.Difficulty)
 		fmt.Printf("当前区块的哈希值是: %x\n", block.Hash)
 		fmt.Printf("区块数据是:%s\n", block.Transactions[0].TXInputs[0].Sig)
+		fmt.Printf("区块涉及到的金额是:%f\n", block.Transactions[0].TXOutputs[0].Value)
+		c++
 		fmt.Println()
 	}
 }
@@ -138,19 +145,17 @@ func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]u
 }
 
 func (bc *BlockChain) FindUTXOTransactions(address string) []*Transaction {
-	var txs []*Transaction
-	spentOutputs := make(map[string][]int64)
+	var txs []*Transaction                   // 存有关信息
+	spentOutputs := make(map[string][]int64) // 去除已消费的数据
 
-	it := bc.NewIterator()
-
+	it := bc.NewIterator() // 生成一个迭代器
 	for {
 		block := it.Next()
-
-		for _, tx := range block.Transactions {
+		for _, tx := range block.Transactions { // 循环数据,可能有多个inputs 和 outputs
 
 		OUTPUT:
-			for i, output := range tx.TXOutputs {
-				if spentOutputs[string(tx.TXId)] != nil {
+			for i, output := range tx.TXOutputs { // 循环输出
+				if spentOutputs[string(tx.TXId)] != nil { // 如果数据已经被消费过了
 					for _, j := range spentOutputs[string(tx.TXId)] {
 						if int64(i) == j {
 							continue OUTPUT
@@ -165,15 +170,16 @@ func (bc *BlockChain) FindUTXOTransactions(address string) []*Transaction {
 			}
 
 			if !tx.IsCoinBase() {
+				// 因为数据是从后往前遍历，如果已经被使用了。在后面获取的地方进行过滤
 				for _, input := range tx.TXInputs {
 					if input.Sig == address {
 						spentOutputs[string(input.TXid)] = append(spentOutputs[string(input.TXid)], input.index)
 					}
 				}
-			} else {
 			}
 		}
 
+		// 全部遍历完
 		if len(block.PrevHash) == 0 {
 			break
 		}

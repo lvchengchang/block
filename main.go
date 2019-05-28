@@ -1,6 +1,7 @@
 package main
 
 func main() {
+	// 创建一个区块链 ---- 如果已经存在则不创建创世块。反之
 	bc := NewBlockChain("班长")
 	cli := Cli{bc}
 	cli.Run()

@@ -9,10 +9,9 @@ import (
 )
 
 type Block struct {
-	Version  uint64
-	Hash     []byte
-	PrevHash []byte
-	//Data       []byte
+	Version    uint64
+	Hash       []byte
+	PrevHash   []byte
 	MarkelRoot []byte
 	TimeStamp  uint64
 	Nonce      uint64

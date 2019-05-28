@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-const reword = 12.5
+const reword = 12.5 // 挖矿奖励
 
 type Transaction struct {
 	TXId      []byte     // transaction id
@@ -55,6 +55,7 @@ func NewCoinBaseTx(address string, data string) *Transaction {
 	output := TXOutput{reword, address}  // 输出是金额和地址
 
 	tx := Transaction{[]byte{}, []TXInput{input}, []TXOutput{output}}
+	// 此步操作是把结构体hash成TXID
 	tx.SetHash()
 
 	return &tx
@@ -69,7 +70,7 @@ func (tx *Transaction) IsCoinBase() bool {
 }
 
 func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transaction {
-	utxos, resValue := bc.FindNeedUTXOs(from, amount)
+	utxos, resValue := bc.FindNeedUTXOs(from, amount) // 找到余额
 
 	if resValue < amount {
 		fmt.Println("余额不足")

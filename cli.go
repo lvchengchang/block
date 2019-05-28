@@ -62,6 +62,7 @@ func (cli *Cli) Run() {
 }
 
 func (cli *Cli) GetBalance(address string) {
+	// 拿到所有没有被消费的数据
 	utxos := cli.bc.FindUTXOs(address)
 
 	total := 0.0
@@ -73,8 +74,7 @@ func (cli *Cli) GetBalance(address string) {
 }
 
 func (cli *Cli) Send(from, to string, amount float64, miner, data string) {
-	// 生成一个挖矿数据
-	coinbase := NewCoinBaseTx(miner, data)
+	coinbase := NewCoinBaseTx(miner, data) // 生成一个挖矿区块
 	tx := NewTransaction(from, to, amount, cli.bc)
 	if tx == nil {
 		return
