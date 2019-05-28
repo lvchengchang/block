@@ -70,7 +70,7 @@ func (tx *Transaction) IsCoinBase() bool {
 }
 
 func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transaction {
-	utxos, resValue := bc.FindNeedUTXOs(from, amount) // 找到余额
+	utxos, resValue := bc.FindNeedUTXOs(from, amount) // 找到余额 utxos 切片index
 
 	if resValue < amount {
 		fmt.Println("余额不足")
@@ -80,6 +80,7 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 	var inputs []TXInput
 	var outputs []TXOutput
 
+	// 循环可用的数据，生成转账input
 	for id, indexArray := range utxos {
 		for _, i := range indexArray {
 			input := TXInput{[]byte(id), int64(i), from}
@@ -87,13 +88,15 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 		}
 	}
 
+	// 生成转账数据
 	output := TXOutput{amount, to}
 	outputs = append(outputs, output)
-	// 找零
 	if resValue > amount {
+		// 如果还剩，找零
 		outputs = append(outputs, TXOutput{resValue - amount, from})
 	}
 
+	// 生成转账记录
 	tx := Transaction{[]byte{}, inputs, outputs}
 	tx.SetHash()
 	return &tx
