@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-const reword = 12.5
+const reword = 12.5 // 挖矿奖励
 
 type Transaction struct {
 	TXId      []byte     // transaction id
@@ -22,7 +22,7 @@ type TXInput struct {
 	// transaction id
 	TXid []byte
 	// transaction index
-	index int64
+	Index int64
 	// address 解锁脚本
 	Sig string // 发起证明(我拥有这些币)
 }
@@ -51,17 +51,18 @@ func (tx *Transaction) SetHash() {
 
 // 挖矿只有一个input和output
 func NewCoinBaseTx(address string, data string) *Transaction {
-	input := TXInput{[]byte{}, -1, data}
-	output := TXOutput{reword, address}
+	input := TXInput{[]byte{}, -1, data} // 挖矿没有输入，全部给个默认值
+	output := TXOutput{reword, address}  // 输出是金额和地址
 
 	tx := Transaction{[]byte{}, []TXInput{input}, []TXOutput{output}}
+	// 此步操作是把结构体hash成TXID
 	tx.SetHash()
 
 	return &tx
 }
 
 func (tx *Transaction) IsCoinBase() bool {
-	if len(tx.TXInputs) == 1 && len(tx.TXInputs[0].TXid) == 0 && tx.TXInputs[0].index == -1 {
+	if len(tx.TXInputs) == 1 && len(tx.TXInputs[0].TXid) == 0 && tx.TXInputs[0].Index == -1 {
 		return true
 	}
 
@@ -69,7 +70,7 @@ func (tx *Transaction) IsCoinBase() bool {
 }
 
 func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transaction {
-	utxos, resValue := bc.FindNeedUTXOs(from, amount)
+	utxos, resValue := bc.FindNeedUTXOs(from, amount) // 找到余额 utxos 切片index
 
 	if resValue < amount {
 		fmt.Println("余额不足")
@@ -79,6 +80,7 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 	var inputs []TXInput
 	var outputs []TXOutput
 
+	// 循环可用的数据，生成转账input
 	for id, indexArray := range utxos {
 		for _, i := range indexArray {
 			input := TXInput{[]byte(id), int64(i), from}
@@ -86,13 +88,17 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 		}
 	}
 
+	// 生成转账数据
 	output := TXOutput{amount, to}
 	outputs = append(outputs, output)
-	// 找零
 	if resValue > amount {
+		// 如果还剩，找零
 		outputs = append(outputs, TXOutput{resValue - amount, from})
 	}
 
+	// 生成转账记录
 	tx := Transaction{[]byte{}, inputs, outputs}
+	tx.SetHash()
+
 	return &tx
 }

@@ -11,7 +11,6 @@ type Cli struct {
 }
 
 const USAGE = `
-	addBlock --data DATA "add data to blockchain"
 	printChain           "print all blockchain data"
 	getBalance --address ADDRESS "获取指定地址余额"
 	send FROM TO AMOUNT MINER DATA "由FROM转AMOUNT给TO，由MINER挖矿，同时写入DATA"
@@ -27,13 +26,6 @@ func (cli *Cli) Run() {
 
 	cmd := args[1]
 	switch cmd {
-	case "addBlock":
-		if len(args) == 4 && args[2] == "--data" {
-			data := args[3]
-			cli.AddBlock(data)
-		} else {
-			fmt.Println("添加区块参数失败,请重试")
-		}
 	case "printChain":
 		cli.PrintBlockChain()
 	case "getBalance":
@@ -62,10 +54,11 @@ func (cli *Cli) Run() {
 }
 
 func (cli *Cli) GetBalance(address string) {
+	// 拿到所有没有被消费的数据
 	utxos := cli.bc.FindUTXOs(address)
-
 	total := 0.0
 	for _, utxo := range utxos {
+		fmt.Println(utxo.Value)
 		total += utxo.Value
 	}
 
@@ -73,7 +66,7 @@ func (cli *Cli) GetBalance(address string) {
 }
 
 func (cli *Cli) Send(from, to string, amount float64, miner, data string) {
-	coinbase := NewCoinBaseTx(miner, data)
+	coinbase := NewCoinBaseTx(miner, data) // 生成一个挖矿区块
 	tx := NewTransaction(from, to, amount, cli.bc)
 	if tx == nil {
 		return

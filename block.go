@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/binary"
 	"encoding/gob"
 	"log"
@@ -9,10 +10,9 @@ import (
 )
 
 type Block struct {
-	Version  uint64
-	Hash     []byte
-	PrevHash []byte
-	//Data       []byte
+	Version    uint64
+	Hash       []byte
+	PrevHash   []byte
 	MarkelRoot []byte
 	TimeStamp  uint64
 	Nonce      uint64
@@ -45,7 +45,7 @@ func NewBlock(tx []*Transaction, prevBlockHash []byte) *Block {
 		Nonce:        0,
 	}
 
-	block.MakeMekeRoot()
+	block.MarkelRoot = block.MakeMekeRoot()
 	//block.SetHash()
 
 	pow := NewProofOfWork(&block)
@@ -96,5 +96,12 @@ func Deserialize(data []byte) Block {
 
 // 模拟梅克尔根
 func (block *Block) MakeMekeRoot() []byte {
-	return []byte{}
+	// json byte hash
+	var info []byte
+	for _, tx := range block.Transactions {
+		info = append(info, tx.TXId...)
+	}
+
+	hash := sha256.Sum256(info)
+	return hash[:]
 }
