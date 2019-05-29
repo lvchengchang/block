@@ -80,12 +80,13 @@ func (cli *Cli) Send(from, to string, amount float64, miner, data string) {
 	fmt.Println("转账成功")
 }
 
-func (cli *Cli) NewWallet() *Wallet {
-	wallet := NewWallet()
-	address := wallet.NewAddress()
-	fmt.Printf("private key %v\n", wallet.Private)
-	fmt.Printf("pubcli  key %v\n", wallet.Public)
-	fmt.Printf("address key %s\n", address)
+func (cli *Cli) NewWallet() *Wallets {
+	//wallet := NewWallet()
+	//address := wallet.NewAddress()
+	ws := NewWallets()
+	for address := range ws.WalletsMap {
+		fmt.Printf("address key %s\n", address)
+	}
 
-	return wallet
+	return ws
 }
