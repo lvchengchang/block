@@ -14,6 +14,7 @@ const USAGE = `
 	printChain           "print all blockchain data"
 	getBalance --address ADDRESS "获取指定地址余额"
 	send FROM TO AMOUNT MINER DATA "由FROM转AMOUNT给TO，由MINER挖矿，同时写入DATA"
+	newWallet "创建一个新的钱包"
 `
 
 func (cli *Cli) Run() {
@@ -48,6 +49,9 @@ func (cli *Cli) Run() {
 		miner := args[5]
 		data := args[6]
 		cli.Send(from, to, amount, miner, data)
+	case "newWallet":
+		fmt.Println("创建一个新的钱包")
+		cli.NewWallet()
 	default:
 		fmt.Printf(USAGE)
 	}
@@ -74,4 +78,14 @@ func (cli *Cli) Send(from, to string, amount float64, miner, data string) {
 
 	cli.bc.AddBlock([]*Transaction{coinbase, tx})
 	fmt.Println("转账成功")
+}
+
+func (cli *Cli) NewWallet() *Wallet {
+	wallet := NewWallet()
+	address := wallet.NewAddress()
+	fmt.Printf("private key %v\n", wallet.Private)
+	fmt.Printf("pubcli  key %v\n", wallet.Public)
+	fmt.Printf("address key %s\n", address)
+
+	return wallet
 }
