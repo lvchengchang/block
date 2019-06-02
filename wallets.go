@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io/ioutil"
+	"log"
 )
 
 type Wallets struct {
@@ -17,6 +18,7 @@ func NewWallets() *Wallets {
 	var ws Wallets
 	ws.WalletsMap = make(map[string]*Wallet)
 
+	ws.loadFile()
 	return &ws
 }
 
@@ -27,6 +29,7 @@ func (ws *Wallets) CreateWallet() string {
 	ws.WalletsMap[address] = wallet
 
 	ws.saveToFile()
+	fmt.Printf("local address %s\n", address)
 	return address
 }
 
@@ -42,4 +45,21 @@ func (ws *Wallets) saveToFile() {
 	}
 
 	ioutil.WriteFile("wallet.data", buffer.Bytes(), 0600)
+}
+
+func (ws *Wallets) loadFile() {
+	content, err := ioutil.ReadFile("wallet.data")
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	gob.Register(elliptic.P256())
+	decoder := gob.NewDecoder(bytes.NewReader(content))
+	var wsLocal Wallets
+	err = decoder.Decode(&wsLocal)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	ws.WalletsMap = wsLocal.WalletsMap
 }
