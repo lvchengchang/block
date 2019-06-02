@@ -7,7 +7,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 )
+
+const WALLETFILENAME = "wallet.dat"
 
 type Wallets struct {
 	WalletsMap map[string]*Wallet
@@ -44,11 +47,18 @@ func (ws *Wallets) saveToFile() {
 		fmt.Println(err)
 	}
 
-	ioutil.WriteFile("wallet.data", buffer.Bytes(), 0600)
+	ioutil.WriteFile(WALLETFILENAME, buffer.Bytes(), 0600)
 }
 
 func (ws *Wallets) loadFile() {
-	content, err := ioutil.ReadFile("wallet.data")
+	_, err := os.Stat(WALLETFILENAME)
+	if os.IsNotExist(err) {
+		ws1 := Wallets{}
+		ws1.WalletsMap = make(map[string]*Wallet)
+		return
+	}
+
+	content, err := ioutil.ReadFile(WALLETFILENAME)
 	if err != nil {
 		log.Panicln(err)
 	}
