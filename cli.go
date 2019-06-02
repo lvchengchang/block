@@ -15,6 +15,7 @@ const USAGE = `
 	getBalance --address ADDRESS "获取指定地址余额"
 	send FROM TO AMOUNT MINER DATA "由FROM转AMOUNT给TO，由MINER挖矿，同时写入DATA"
 	newWallet "创建一个新的钱包"
+	listAddress "getAllAddress"
 `
 
 func (cli *Cli) Run() {
@@ -52,6 +53,8 @@ func (cli *Cli) Run() {
 	case "newWallet":
 		fmt.Println("创建一个新的钱包")
 		cli.NewWallet()
+	case "listAddress":
+		cli.ListAddress()
 	default:
 		fmt.Printf(USAGE)
 	}
@@ -80,12 +83,25 @@ func (cli *Cli) Send(from, to string, amount float64, miner, data string) {
 	fmt.Println("转账成功")
 }
 
-func (cli *Cli) NewWallet() *Wallet {
-	wallet := NewWallet()
-	address := wallet.NewAddress()
-	fmt.Printf("private key %v\n", wallet.Private)
-	fmt.Printf("pubcli  key %v\n", wallet.Public)
-	fmt.Printf("address key %s\n", address)
+func (cli *Cli) NewWallet() *Wallets {
+	//wallet := NewWallet()
+	//address := wallet.NewAddress()
+	ws := NewWallets()
+	ws.CreateWallet()
 
-	return wallet
+	return ws
+	//for address := range ws.WalletsMap {
+	//	fmt.Printf("address key %s\n", address)
+	//}
+	//
+	//return ws
+}
+
+func (cli *Cli) ListAddress() {
+	ws := NewWallets()
+	ws.GetAllAddress()
+
+	for address := range ws.WalletsMap {
+		fmt.Printf("local address is %s\n", address)
+	}
 }

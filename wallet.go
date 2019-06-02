@@ -33,6 +33,7 @@ func NewWallet() *Wallet {
 	}
 }
 
+// 生成地址
 func (w *Wallet) NewAddress() string {
 	public := w.Public
 
