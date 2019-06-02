@@ -63,3 +63,12 @@ func (ws *Wallets) loadFile() {
 
 	ws.WalletsMap = wsLocal.WalletsMap
 }
+
+func (ws *Wallets) GetAllAddress() []string {
+	var addresses []string
+	for address := range ws.WalletsMap {
+		addresses = append(addresses, address)
+	}
+
+	return addresses
+}

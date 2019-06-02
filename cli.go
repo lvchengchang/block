@@ -15,6 +15,7 @@ const USAGE = `
 	getBalance --address ADDRESS "获取指定地址余额"
 	send FROM TO AMOUNT MINER DATA "由FROM转AMOUNT给TO，由MINER挖矿，同时写入DATA"
 	newWallet "创建一个新的钱包"
+	listAddress "getAllAddress"
 `
 
 func (cli *Cli) Run() {
@@ -52,6 +53,8 @@ func (cli *Cli) Run() {
 	case "newWallet":
 		fmt.Println("创建一个新的钱包")
 		cli.NewWallet()
+	case "listAddress":
+		cli.ListAddress()
 	default:
 		fmt.Printf(USAGE)
 	}
@@ -92,4 +95,13 @@ func (cli *Cli) NewWallet() *Wallets {
 	//}
 	//
 	//return ws
+}
+
+func (cli *Cli) ListAddress() {
+	ws := NewWallets()
+	ws.GetAllAddress()
+
+	for address := range ws.WalletsMap {
+		fmt.Printf("local address is %s\n", address)
+	}
 }
